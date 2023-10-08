@@ -18,15 +18,29 @@ class Player {
     this.jumpPower = 30;
   }
 
+  isOnBlock() {
+    for (const block of blocks) {
+      if (
+        this.position.x < block.x + blockWidth &&
+        this.position.x + 20 > block.x &&
+        this.position.y + 20 > block.y &&
+        this.position.y < block.y + blockHeight
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   applyGravity() {
-    // Aplica a gravidade apenas se o jogador estiver acima do solo
-    if (this.position.y < 350) {
-        this.position.y += blockHeight;
-      
-      // Corrige a posição do jogador para estar no solo
-        
+    // Aplica a gravidade apenas se o jogador não estiver em cima de um bloco
+    if (!this.isOnBlock() && this.position.y < ground) {
+      this.position.y += gravity;
+    } else if (this.position.y >= ground) {
+      this.position.y = ground;  // Corrige a posição para estar no solo
     }
   }
+
   jump() {
     this.position.y -= this.jumpPower;
     this.position.x += this.jumpPower
@@ -78,6 +92,7 @@ function drawPlayer() {
   ctx.fillRect(player.position.x, player.position.y, 20, 20);
 }
 
+
 function checkCollisions() {
   for (const block of blocks) {
     if (
@@ -100,7 +115,6 @@ function checkCollisions() {
     }
   }
 }
-
 
 
 
