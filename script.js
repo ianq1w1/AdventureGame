@@ -22,8 +22,8 @@ class Player {
     for (const block of blocks) {
       if (
         this.position.x < block.x + blockWidth &&
-        this.position.x + 20 > block.x &&
-        this.position.y + 20 > block.y &&
+        this.position.x + 40 > block.x &&
+        this.position.y + 40 > block.y &&
         this.position.y < block.y + blockHeight
       ) {
         return true;
@@ -87,18 +87,29 @@ function drawBlocks() {
   }
 }
 
+
+
 function drawPlayer() {
-  ctx.fillStyle = 'black';
-  ctx.fillRect(player.position.x, player.position.y, 20, 20);
+  var horseImage = new Image();
+  horseImage.src = 'imgs/cavalo.png';
+  if (horseImage.complete) {
+    ctx.drawImage(horseImage, player.position.x, player.position.y, 40, 40);
+
+  } else {
+    ctx.fillStyle = 'black'; //caso o cavalo não carregue
+    ctx.fillRect(player.position.x, player.position.y, 40, 40);
+  }
 }
+
+
 
 
 function checkCollisions() {
   for (const block of blocks) {
     if (
       player.position.x < block.x + blockWidth &&
-      player.position.x + 20 > block.x &&
-      player.position.y + 20 > block.y &&
+      player.position.x + 40 > block.x &&
+      player.position.y + 40 > block.y &&
       player.position.y < block.y + blockHeight
     ) {
       if (block.type === 'explosive') {
@@ -157,5 +168,21 @@ document.addEventListener('keydown', (event) => {
 document.addEventListener('keydown', (event) => {
   if (event.code === 'ArrowDown' && event.code === 'Space') {
     player.superJump();
+  }
+});
+
+
+
+// Apartir daqui é relacionado a Musica
+const minhaMusica = document.getElementById('minhaMusica');
+const playPauseButton = document.getElementById('playPauseButton');
+
+playPauseButton.addEventListener('click', () => {
+  if (minhaMusica.paused) {
+    minhaMusica.play();
+    playPauseButton.textContent = '⏸️ Pausar';
+  } else {
+    minhaMusica.pause();
+    playPauseButton.textContent = '▶️ Reproduzir';
   }
 });
