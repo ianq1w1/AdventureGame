@@ -4,7 +4,9 @@ body {
 
 #canvas {
     border: 1px solid #000000;
-    padding:5px ;
+    padding: 5px;
+    background-image: url(https://img.freepik.com/premium-vector/pixel-art-farm-landscape-with-barn-mill-silo-fence-trees-background-vector-8-bit-game_360488-1020.jpg);
+    background-size: cover;
 }
 
 .btnSong{
