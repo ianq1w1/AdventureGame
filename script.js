@@ -1,5 +1,9 @@
 const gravity = 1;
 const ground = 400;
+var canJump = true;
+
+var blockCount = 0
+
 
 
 class Block {
@@ -15,7 +19,7 @@ class Player {
     this.hp = 10;
     this.energy = 0;
     this.position = { x: 50, y: 350 }; // Initial position
-    this.jumpPower = 30;
+    this.jumpPower = 50;
   }
 
   isOnBlock() {
@@ -26,6 +30,7 @@ class Player {
         this.position.y + 40 > block.y &&
         this.position.y < block.y + blockHeight
       ) {
+        blockCount++
         return true;
       }
     }
@@ -43,13 +48,15 @@ class Player {
 
   jump() {
     this.position.y -= this.jumpPower;
-    this.position.x += this.jumpPower
-    this.energy = Math.max(0, this.energy - 10);
+    this.position.x += this.jumpPower;
+
+     this.energy = Math.max(0, this.energy - 10);
   }
 
   superJump() {
     if (this.energy >= 50) {
       this.position.y -= this.jumpPower * 3;
+      this.position.x += this.jumpPower * 3;
       this.energy = 0;
     }
   }
@@ -76,7 +83,7 @@ function generateBlocks() {
     const type = Math.random() < 0.2 ? 'explosive' : Math.random() < 0.2 ? 'energy' : 'normal';
     const block = new Block(type, x, canvas.height - blockHeight);
     blocks.push(block);
-    x += blockWidth + Math.random() * 100;
+    x += blockWidth + Math.random() * 5;
   }
 }
 
@@ -115,12 +122,13 @@ function checkCollisions() {
       if (block.type === 'explosive') {
         player.hp -= 1;
         if (player.hp <= 0) {
-          alert('Game over! Your score: ' + blocks.length);
+          alert('sua pontuação foi de:' + blockCount + 'blocos')
           generateBlocks();
           player.position = { x: 50, y: 350 };
           player.hp = 10;
         }
       } else if (block.type === 'energy') {
+        //player.energy += 10
         player.energy = Math.min(player.energy + 10, 50);
       }
     }
@@ -155,21 +163,31 @@ generateBlocks();
 gameLoop();
 
 
-document.addEventListener('keydown', (event) => {
-  if (event.code === 'Space') {
+
+/*function enableJump() {
+  canJump = true;
+}*/
+
+document.addEventListener('keyup', (event) => {
+  if (event.code === 'Space' && canJump) {
+    if(player.isOnBlock()){
     if (player.energy >= 50) {
+      if(player.isOnBlock())
       player.superJump();
     } else {
       player.jump();
     }
   }
+    //canJump = false; // Desabilita o salto temporariamente
+    //setTimeout(enableJump, 500); // Habilita o salto após 1 segundo
+  }
 });
 
-document.addEventListener('keydown', (event) => {
+/*document.addEventListener('keydown', (event) => {
   if (event.code === 'ArrowDown' && event.code === 'Space') {
     player.superJump();
   }
-});
+});*/
 
 
 
