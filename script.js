@@ -4,8 +4,6 @@ var canJump = true;
 
 var blockCount = 0
 
-
-
 class Block {
   constructor(type, x, y) {
     this.type = type;
@@ -30,7 +28,6 @@ class Player {
         this.position.y + 40 > block.y &&
         this.position.y < block.y + blockHeight
       ) {
-        blockCount++
         return true;
       }
     }
@@ -62,8 +59,6 @@ class Player {
   }
 }
 
-
-
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -71,10 +66,6 @@ const blockWidth = 50;
 const blockHeight = 20;
 const player = new Player();
 let blocks = [];
-
-
-
-
 
 function generateBlocks() {
   blocks = [];
@@ -94,8 +85,6 @@ function drawBlocks() {
   }
 }
 
-
-
 function drawPlayer() {
   var horseImage = new Image();
   horseImage.src = 'imgs/cavalo.png';
@@ -108,9 +97,6 @@ function drawPlayer() {
   }
 }
 
-
-
-
 function checkCollisions() {
   for (const block of blocks) {
     if (
@@ -121,11 +107,15 @@ function checkCollisions() {
     ) {
       if (block.type === 'explosive') {
         player.hp -= 1;
+        player.position.y -= player.jumpPower;
+        player.position.x += player.jumpPower;
+        console.log(player.hp)
         if (player.hp <= 0) {
-          alert('sua pontuação foi de:' + blockCount + 'blocos')
+          alert('Sua pontuação foi de: ' + blockCount + ' blocos')
           generateBlocks();
           player.position = { x: 50, y: 350 };
           player.hp = 10;
+          blockCount = 0
         }
       } else if (block.type === 'energy') {
         //player.energy += 10
@@ -134,9 +124,6 @@ function checkCollisions() {
     }
   }
 }
-
-
-
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -162,8 +149,6 @@ function gameLoop() {
 generateBlocks();
 gameLoop();
 
-
-
 /*function enableJump() {
   canJump = true;
 }*/
@@ -171,12 +156,14 @@ gameLoop();
 document.addEventListener('keyup', (event) => {
   if (event.code === 'Space' && canJump) {
     if(player.isOnBlock()){
+      
     if (player.energy >= 50) {
       if(player.isOnBlock())
       player.superJump();
     } else {
       player.jump();
     }
+    blockCount++
   }
     //canJump = false; // Desabilita o salto temporariamente
     //setTimeout(enableJump, 500); // Habilita o salto após 1 segundo
@@ -188,8 +175,6 @@ document.addEventListener('keyup', (event) => {
     player.superJump();
   }
 });*/
-
-
 
 // Apartir daqui é relacionado a Musica
 const minhaMusica = document.getElementById('minhaMusica');
