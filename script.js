@@ -59,6 +59,48 @@ class Player {
   }
 }
 
+class Node {
+  constructor(block) {
+    this.block = block;
+    this.next = null;
+  }
+}
+
+class LinkedList {
+  constructor() {
+    this.head = null;
+    this.tail = null;
+  }
+
+  append(block) {
+    const newNode = new Node(block);
+    if (!this.head) {
+      this.head = newNode;
+      this.tail = newNode;
+      return;
+    }
+
+    this.tail.next = newNode;
+    this.tail = newNode;
+  }
+}
+
+const blocksLinkedList = new LinkedList(); // Criando uma lista encadeada para armazenar os blocos
+
+function generateBlocks() {
+  blocksLinkedList.head = null; // Resetando a lista encadeada a cada geração de blocos
+  blocksLinkedList.tail = null;
+
+  let x = 0;
+  while (x < canvas.width) {
+    const type = Math.random() < 0.2 ? 'explosive' : Math.random() < 0.2 ? 'energy' : 'normal';
+    const block = new Block(type, x, canvas.height - blockHeight);
+    blocksLinkedList.append(block);
+    x += blockWidth + Math.random() * 5;
+  }
+}
+
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -120,6 +162,10 @@ function checkCollisions() {
       } else if (block.type === 'energy') {
         //player.energy += 10
         player.energy = Math.min(player.energy + 10, 50);
+        if(player.isOnBlock === true){
+           block.type = 'explosive' 
+        }
+        console.log(player.energy)
       }
     }
   }
