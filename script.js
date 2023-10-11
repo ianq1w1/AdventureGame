@@ -3,6 +3,7 @@ const ground = 400;
 var canJump = true;
 
 var blockCount = 0
+var blockInGame = 0
 
 class Block {
   constructor(type, x, y) {
@@ -21,7 +22,9 @@ class Player {
   }
 
   isOnBlock() {
-    for (const block of blocks) {
+    let currentNode = blocksLinkedList.head;
+    while (currentNode !== null) {
+      const block = currentNode.block;
       if (
         this.position.x < block.x + blockWidth &&
         this.position.x + 40 > block.x &&
@@ -30,6 +33,7 @@ class Player {
       ) {
         return true;
       }
+      currentNode = currentNode.next;
     }
     return false;
   }
@@ -42,6 +46,7 @@ class Player {
       this.position.y = ground;  // Corrige a posição para estar no solo
     }
   }
+
 
   jump() {
     this.position.y -= this.jumpPower;
@@ -87,45 +92,13 @@ class LinkedList {
 
 const blocksLinkedList = new LinkedList(); // Criando uma lista encadeada para armazenar os blocos
 
-function generateBlocks() {
-  blocksLinkedList.head = null; // Resetando a lista encadeada a cada geração de blocos
-  blocksLinkedList.tail = null;
-
-  let x = 0;
-  while (x < canvas.width) {
-    const type = Math.random() < 0.2 ? 'explosive' : Math.random() < 0.2 ? 'energy' : 'normal';
-    const block = new Block(type, x, canvas.height - blockHeight);
-    blocksLinkedList.append(block);
-    x += blockWidth + Math.random() * 5;
-  }
-}
-
-
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 const blockWidth = 50;
 const blockHeight = 20;
 const player = new Player();
-let blocks = [];
 
-function generateBlocks() {
-  blocks = [];
-  let x = 0;
-  while (x < canvas.width) {
-    const type = Math.random() < 0.2 ? 'explosive' : Math.random() < 0.2 ? 'energy' : 'normal';
-    const block = new Block(type, x, canvas.height - blockHeight);
-    blocks.push(block);
-    x += blockWidth + Math.random() * 5;
-  }
-}
-
-function drawBlocks() {
-  for (const block of blocks) {
-    ctx.fillStyle = block.type === 'explosive' ? 'red' : block.type === 'energy' ? 'green' : 'blue';
-    ctx.fillRect(block.x, block.y, blockWidth, blockHeight);
-  }
-}
 
 function drawPlayer() {
   var horseImage = new Image();
@@ -137,10 +110,40 @@ function drawPlayer() {
     ctx.fillStyle = 'black'; //caso o cavalo não carregue
     ctx.fillRect(player.position.x, player.position.y, 40, 40);
   }
+
+  
 }
 
+function generateBlocks() {
+  let x = 0;
+  blocksLinkedList.head = null;
+  blocksLinkedList.tail = null;
+
+  while (x < canvas.width) {
+    const type = Math.random() < 0.2 ? 'explosive' : Math.random() < 0.2 ? 'energy' : 'normal';
+    const block = new Block(type, x, canvas.height - blockHeight);
+    blocksLinkedList.append(block);
+    x += blockWidth + Math.random() * 5;
+  }
+}
+
+function drawBlocks() {
+  let currentNode = blocksLinkedList.head;
+  while (currentNode !== null) {
+    const block = currentNode.block;
+    ctx.fillStyle = block.type === 'explosive' ? 'red' : block.type === 'energy' ? 'green' : 'blue';
+    ctx.fillRect(block.x, block.y, blockWidth, blockHeight);
+    currentNode = currentNode.next;
+  }
+}
+
+let lastBlockTouched = null;
+
 function checkCollisions() {
-  for (const block of blocks) {
+  let energyBlock = null;
+  let currentNode = blocksLinkedList.head;
+  while (currentNode !== null) {
+    const block = currentNode.block;
     if (
       player.position.x < block.x + blockWidth &&
       player.position.x + 40 > block.x &&
@@ -151,25 +154,32 @@ function checkCollisions() {
         player.hp -= 1;
         player.position.y -= player.jumpPower;
         player.position.x += player.jumpPower;
-        console.log(player.hp)
+        console.log(player.hp);
         if (player.hp <= 0) {
-          alert('Sua pontuação foi de: ' + blockCount + ' blocos')
+          alert('Sua pontuação foi de: ' + blockCount + ' blocos');
           generateBlocks();
           player.position = { x: 50, y: 350 };
           player.hp = 10;
-          blockCount = 0
+          blockCount = 0;
         }
       } else if (block.type === 'energy') {
-        //player.energy += 10
-        player.energy = Math.min(player.energy + 10, 50);
-        if(player.isOnBlock === true){
-           block.type = 'explosive' 
+        if (energyBlock !== block) {
+          energyBlock = block;
+          player.energy = Math.min(player.energy + 10, 50);
+          console.log('Energia do jogador:', player.energy);
         }
-        console.log(player.energy)
       }
     }
+
+    if (lastBlockTouched !== null) {
+      if (player.position.x + 40 < lastBlockTouched.x) {
+        lastBlockTouched = null;
+      }
+    }
+    currentNode = currentNode.next;
   }
 }
+
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -178,15 +188,25 @@ function gameLoop() {
   player.applyGravity();
 
   drawBlocks();
-  drawPlayer();
+  drawPlayer(); 
+
+  currentNode = 0
+
+  //corrigir salvamento do ultimo bloco pisado em relação ao canva, e á linked list 
+
 
   if (player.position.x > canvas.width) {
     // Save the last block and generate new blocks
-    const lastBlock = blocks[blocks.length - 1];
-    blocks = [lastBlock];
+    
+    //blocks = [lastBlock];
+    currentNode = currentNode.next
+    blocksLinkedList.head = currentNode 
     generateBlocks();
     player.position.x = 50;
   }
+
+  document.getElementById('hpInfo').textContent = 'HP: ' + player.hp;
+  document.getElementById('blockCountInfo').textContent = 'Blocos pulados: ' + blockCount;
 
   checkCollisions();
 
