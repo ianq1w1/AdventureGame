@@ -2,6 +2,12 @@ body {
     text-align: center; 
 }
 
+h1{
+    font-family: 'Press Start 2P', cursive;
+    font-size: 50px;
+    color: #574c47;
+}
+
 #canvas {
     border: 1px solid #000000;
     padding: 5px;
@@ -17,4 +23,11 @@ body {
     border-radius: 5px;
     background-color: #574c47;
     cursor: pointer;
+}
+
+span{
+    font-size: 20px;
+    color: #ffffff;
+    padding: 10px 20px;
+    background: rgb(174, 88, 88);
 }
